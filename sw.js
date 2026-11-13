@@ -1,6 +1,6 @@
 // SKP COCO Traders - offline cache. Keep next to index.html (same folder).
 // Bump V on every release so old caches are removed.
-const V='skp-coco-v4',FONTS='skp-coco-fonts-v1',CORE=['./','./index.html'];
+const V='skp-coco-v5',FONTS='skp-coco-fonts-v1',CORE=['./','./index.html'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>Promise.all(CORE.map(u=>c.add(new Request(u,{cache:'reload'})).catch(()=>{})))).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==V&&x!==FONTS).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
 self.addEventListener('message',e=>{if(e.data==='SKIP_WAITING')self.skipWaiting()});
