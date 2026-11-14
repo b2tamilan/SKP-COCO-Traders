@@ -44,6 +44,7 @@ h3{margin:4px 0 10px;color:var(--pr)}.ok{color:var(--gn)}
 #bmReceipt .tp{text-align:left;word-break:break-word}
 #bmReceipt .rf{text-align:center;border-top:1px solid #000;margin-top:6px;padding-top:4px}
 .bmtool{display:flex;gap:6px;align-items:center;margin-bottom:4px}
+.bmact{display:flex;flex-wrap:wrap;gap:2px;margin-top:6px}.bmact .btn{flex:1 1 46%;margin:2px}#bmImg img{max-width:100%}
 /* ---- Print: thermal ticket when #bm is open, A4 report otherwise ---- */
 @media print{
 @page{size:A4;margin:10mm}
@@ -51,7 +52,7 @@ body:has(#bm){background:#fff!important;color:#000!important;margin:0!important}
 body:has(#bm)>*:not(#bm){display:none!important}
 #bm{position:static!important;inset:auto!important;background:none!important;padding:0!important;display:block!important;overflow:visible!important}
 #bm>.card{border:0!important;box-shadow:none!important;border-radius:0!important;background:none!important;padding:0!important;margin:0!important;max-width:none!important;max-height:none!important;overflow:visible!important}
-#bm button,#bm h3,#bm .bmtool,#bm #bmt{display:none!important}
+#bm button,#bm h3,#bm .bmtool,#bm #bmt,#bm .bmact,#bm #bmImg,#bm #bmMsg{display:none!important}
 #bmReceipt{width:54mm!important;margin:0 auto!important;border:0!important;box-shadow:none!important;padding:0!important;background:#fff!important;color:#000!important;font-size:12px}
 #bm[data-w="80"] #bmReceipt{width:74mm!important}
 #bmReceipt *{color:#000!important}
@@ -145,7 +146,7 @@ if(!$('pq').dataset.m)$('pq').value=Math.min(pr,Math.max(0,net-it));pq=n('pq')}e
 const fin=net-it-pq;$('pfin').value=fin;if(s!='pw'&&s!='e')$('pw').dataset.m='';if(!$('pw').dataset.m)$('pw').value=fin;$('pcl').value=balTxt(f.bal+net-it-n('pw'),1)}
 function savP(w){const f=fm($('pf0').value),g=n('pg');if(!f||g<=0)return alert('விவசாயி & காய்கள் தேவை');
 const r={k:'P',fid:f.id,date:$('pdt').value,g,ded:n('pd'),pp:n('pp'),bill:n('pb'),rate:n('pr'),amt:n('pa'),cut:n('pc'),gram:n('pgm'),net:n('pn'),int:n('pi'),pr:n('pq'),fin:n('pfin'),paid:n('pw'),mode:$('pm').value,note:$('pnote').value,id:uid()};
-r.d=r.net-r.int-r.paid;putF(r);recF(f);if(f.bal<0&&!f.since)f.since=r.date;if(f.bal<0&&r.pr>0)f.since=r.date;save();render();showBill(billP(r,f,f.bal),f.ph)}
+r.d=r.net-r.int-r.paid;putF(r);recF(f);if(f.bal<0&&!f.since)f.since=r.date;if(f.bal<0&&r.pr>0)f.since=r.date;save();render();showBill(billP(r,f,f.bal),f.ph,{bal:f.bal})}
 function recF(f){f.bal=S.fe.filter(e=>e.fid==f.id).reduce((a,e)=>a+e.d,0);if(f.bal>=0)f.since='';const ps=S.fe.filter(e=>e.fid==f.id&&e.k=='P').map(e=>e.date).sort();f.last=ps.length?ps[ps.length-1]:(f.lastm||'')}
 V.u=()=>{const s=stk(),c=sb.u||'a';return subs('u',[['a','தினசரி உரியல் பதிவு'],['b','குடோன் சேதாரம்']])+(c=='a'?`<div class="card"><div class="k">தற்போதைய உரிக்காத காய் இருப்பு</div><div class="v">${s.u}</div><div class="g">${DF('ud')}${F('up','உரிக்கப்பட்ட காய்கள்','oninput="cU()"')}${F('ul','உரியல் கூலி ₹','oninput="cU()"')}${F('ut','டீ/பெட்ரோல்/இதர ₹','value=0 oninput="cU()"')}${TX('un','குறிப்பு')}</div><div class="g"><div class="card">மொத்த உரியல் செலவு<div class="v" id="uc">₹0</div></div><div class="card">1 காய்க்கு<div class="v" id="ucp">₹0.00</div></div><div class="card">புதிய மட்டை வரவு<div class="v" id="uk">+0</div></div></div><button class="btn" onclick="savU()">💾 சேமி</button></div>`:`<div class="card"><div class="g">${DF('ad')}<label>பொருள்<select id="at"><option value="U">உரிக்காத காய்</option><option value="H">உரித்த காய்</option><option value="K">தேங்காய் மட்டை</option></select></label>${F('ap','கழிவு எண்ணிக்கை')}${TX('ar','காரணம்')}</div><button class="btn" onclick="put('ad',{date:$('ad').value,t:$('at').value,p:n('ap'),r:$('ar').value});save();render()">💾 சேமி</button></div>`)+((c=='a')?lst('dh',e=>`${e.p} காய் | ${R(e.cost)}`):lst('ad',e=>`${{U:'உரிக்காத',H:'உரித்த',K:'மட்டை'}[e.t]} -${e.p} ${e.r||''}`))};
 function cU(){const p=n('up'),c=n('ul')+n('ut');$('uc').textContent=R(c);$('ucp').textContent='₹'+(p?(c/p).toFixed(2):'0.00');$('uk').textContent='+'+p}
@@ -157,13 +158,13 @@ function calcS(){const rs=rowsS(),tot=rs.reduce((a,x)=>a+x.tot,0),b0=bm($('sb').
 $('sinfo').textContent=b?(b.bal>0?'பழைய பாக்கி: '+R(b.bal):b.bal<0?'முன்பணம்: '+R(-b.bal):''):'';
 let h=0,u=0;rs.forEach(x=>GR.find(g=>g[0]==x.g)[2]=='H'?h+=x.pcs:u+=x.pcs);if($('stb2'))$('stb2').textContent=(h||u)?'  ➜ இந்த பில்லுக்குப் பின்: உரிக்காத '+(s.u-u)+' | உரித்த '+(s.h-h):'';$('swarn').innerHTML=(h>s.h||u>s.u)?'<div class="warn">⚠ குடோன் இருப்பு குறைவு (உரித்த '+s.h+', உரிக்காத '+s.u+') - அனுமதிக்கப்படும்</div>':''}
 function savS(w){const b=bm($('sb').value),rs=rowsS().filter(x=>x.pcs>0||x.gk>0);if(!b||!rs.length)return alert('வியாபாரி & ரகம் தேவை');const total=rs.reduce((a,x)=>a+x.tot,0),recv=n('sr');
-const r={k:'S',bid:b.id,date:$('sd').value,rows:rs,total,recv,mode:$('smd').value,d:total-recv,id:uid()};putB(r,b);save();render();showBill(billS(r,b),b.ph)}
+const r={k:'S',bid:b.id,date:$('sd').value,rows:rs,total,recv,mode:$('smd').value,d:total-recv,id:uid()};putB(r,b);save();render();showBill(billS(r,b),b.ph,{bal:b.bal})}
 V.y=()=>{const c=sb.y||'a',lp=(k)=>{const a=S.fe.filter(e=>e.k=='P').reduce((s,e)=>s+(k=='c'?e.cut:0),0),d=S.dh.reduce((s,e)=>s+(k=='d'?e.lab:0),0),p=S.lb.filter(e=>e.t==k).reduce((s,e)=>s+e.amt,0);const x=k=='c'?a:d;return`${k=='c'?'வெட்டுக் கூலி':'உரியல் கூலி'}: சேர்ந்தது ${R(x)} | கொடுத்தது ${R(p)} | பாக்கி ${R(x-p)}`};
 return subs('y',[['a','விவசாயி பட்டுவாடா'],['c','வியாபாரி வசூல்'],['l','கூலி'],['x','இதர செலவுகள்']])+({a:`<div class="card"><div class="g">${DF('yd')}<label>விவசாயி<select id="yf" onchange="yi()">${opt(S.f)}</select></label></div><div id="yinf" class="k"></div><label><input type="radio" name="yk" value="D" checked> பாக்கி பட்டுவாடா</label><label><input type="radio" name="yk" value="A"> புதிய முன்பணம் கொடுத்தல்</label><div class="g"><label>வட்டி உண்டா?<select id="yv"><option value="0">இல்லை 0%</option><option value="1">ஆம்</option></select></label>${F('yr','மாத வட்டி %','value=2')}${F('ya','தொகை ₹')}${MD('ym')}${TX('yn','Notes')}</div><button class="btn" onclick="savY(1)">💾 சேமி & WhatsApp ரசீது</button></div>`,c:`<div class="card"><div class="g">${DF('cd')}<label>வியாபாரி<select id="cb" onchange="ci()">${opt(S.b)}</select><span id="cinf" class="k"></span></label>${F('ca','வசூல் தொகை ₹')}${MD('cm')}${TX('cn','Notes')}</div><button class="btn" onclick="savC()">💾 வசூலைச் சேமி & WhatsApp</button></div>`,l:`<div class="card"><p>${lp('c')}<br>${lp('d')}</p><div class="g">${DF('ld')}<label>வகை<select id="lt"><option value="c">வெட்டுக் கூலி</option><option value="d">உரியல் கூலி</option></select></label>${TX('lw','தொழிலாளர்/மேஸ்திரி')}${F('la','தொகை ₹')}${TX('ln','குறிப்பு')}</div><button class="btn" onclick="put('lb',{date:$('ld').value,t:$('lt').value,who:$('lw').value,amt:n('la'),note:$('ln').value});save();render()">💾 சேமி</button></div>`,x:`<div class="card"><div class="g">${DF('xd')}<label>வகை<select id="xt"><option>வண்டி வாடகை</option><option>லோடுமேன் கூலி</option><option>குடோன் வாடகை</option><option>கரண்ட் பில்</option><option>இதர செலவுகள்</option></select></label>${F('xa','தொகை ₹')}${TX('xn','விவரம்')}</div><button class="btn" onclick="put('ex',{date:$('xd').value,type:$('xt').value,amt:n('xa'),note:$('xn').value});save();render()">💾 சேமி</button></div>`})[c]+(c=='l'?lst('lb',e=>`${e.who} ${e.t=='c'?'வெட்டுக் கூலி':'உரியல் கூலி'} ${R(e.amt)}`):c=='x'?lst('ex',e=>`${e.type} ${R(e.amt)}`):'')};
 function yi(){if(!$('yf'))return;const f=fm($('yf').value);$('yinf').textContent=f?(f.bal>0?'கணக்கு இருப்பு - பாக்கி (கொடுக்க வேண்டியது): '+R(f.bal):f.bal<0?'கணக்கு இருப்பு - முன்பணம்: '+R(-f.bal):'இருப்பு இல்லை'):''}
 function ci(){if(!$('cb'))return;const b=bm($('cb').value);$('cinf').textContent=b?(b.bal>0?' கணக்கு இருப்பு - பாக்கி (வர வேண்டியது): '+R(b.bal):b.bal<0?' கணக்கு இருப்பு - முன்பணம்: '+R(-b.bal):' இருப்பு இல்லை'):''}
-function savY(w){const f=fm($('yf').value),a=n('ya'),k=document.querySelector('[name=yk]:checked').value;if(!f||a<=0)return;const r={k,fid:f.id,date:$('yd').value,d:-a,amt:a,mode:$('ym').value,id:uid()};if(k=='A'){if(f.bal>=0||!f.since)f.since=r.date;else if(!(ed&&ed.old)){const op=-f.bal,el=Math.max(0,dd(r.date,f.since)),sh=Math.round(el*op/(op+a)),dt=new Date(r.date+'T00:00:00');dt.setDate(dt.getDate()-sh);f.since=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0')}f.rate=$('yv').value=='1'?n('yr'):0}putF(r);recF(f);if(k=='A'&&f.bal<0&&!f.since)f.since=r.date;save();render();showBill(`SKP COCO Traders\nதேதி: ${fd(r.date)}\nவிவசாயி: ${f.name}\n${k=='D'?'பட்டுவாடா':'முன்பணம்'}: ${R(a)}`+L('முன்பண இருப்பு',-f.bal)+L('பாக்கி',f.bal),f.ph)}
-function savC(){const b=bm($('cb').value),a=n('ca');if(!b||a<=0)return;putB({k:'C',bid:b.id,date:$('cd').value,d:-a,mode:$('cm').value,id:uid()},b);save();render();showBill(`SKP COCO Traders\nதேதி: ${fd($('cd').value)}\nவியாபாரி: ${b.name}\nவசூல்: ${R(a)}`+L('பாக்கி',b.bal),b.ph)}
+function savY(w){const f=fm($('yf').value),a=n('ya'),k=document.querySelector('[name=yk]:checked').value;if(!f||a<=0)return;const r={k,fid:f.id,date:$('yd').value,d:-a,amt:a,mode:$('ym').value,id:uid()};if(k=='A'){if(f.bal>=0||!f.since)f.since=r.date;else if(!(ed&&ed.old)){const op=-f.bal,el=Math.max(0,dd(r.date,f.since)),sh=Math.round(el*op/(op+a)),dt=new Date(r.date+'T00:00:00');dt.setDate(dt.getDate()-sh);f.since=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0')}f.rate=$('yv').value=='1'?n('yr'):0}putF(r);recF(f);if(k=='A'&&f.bal<0&&!f.since)f.since=r.date;save();render();showBill(`SKP COCO Traders\nதேதி: ${fd(r.date)}\nவிவசாயி: ${f.name}\n${k=='D'?'பட்டுவாடா':'முன்பணம்'}: ${R(a)}`+L('முன்பண இருப்பு',-f.bal)+L('பாக்கி',f.bal),f.ph,{bal:f.bal})}
+function savC(){const b=bm($('cb').value),a=n('ca');if(!b||a<=0)return;putB({k:'C',bid:b.id,date:$('cd').value,d:-a,mode:$('cm').value,id:uid()},b);save();render();showBill(`SKP COCO Traders\nதேதி: ${fd($('cd').value)}\nவியாபாரி: ${b.name}\nவசூல்: ${R(a)}`+L('பாக்கி',b.bal),b.ph,{bal:b.bal})}
 function rm(k,id){S._del=S._del||{};S._del[id]=Date.now();delete PV[id];S[k]=S[k].filter(x=>x.id!=id)}
 function del(k,id){const e0=(k=='f'?S.fe:S.be).find(x=>x.id==id);if(!e0)return;if(!confirm(e0.k=='H'?'நீக்கவா? (மட்டை விற்பனைப் பதிவும் சேர்த்து நீக்கப்படும்)':'நீக்கவா? (கணக்கு மீண்டும் கணக்கிடப்படும்)'))return;
 if(k=='f'){rm('fe',id);recF(fm(e0.fid))}else{if(e0.k=='H'&&e0.hk)rm('hk',e0.hk);rm('be',id);recB(bm(e0.bid))}save();render()}
@@ -195,16 +196,157 @@ ok('5-Column Passbook Verification (தேதி, விவரம், தொக�
 {const S0=S,PV0=PV,ed0=ed;try{S={f:[],b:[{id:'B1',name:'T',bal:0}],fe:[],be:[],dh:[],ad:[],hk:[{id:'hx',who:'T',pcs:100,rate:1,tot:100,recv:40,date:'2026-11-12'}],lb:[],ex:[],_del:{}};PV={};S.be.push({id:'H_hx',k:'H',bid:'B1',date:'2026-11-12',total:100,recv:40,pcs:100,hk:'hx',d:60});const hb=S.b[0];recB(hb);const bal1=hb.bal,hc=pbCells('b',S.be[0],hb.bal);rm('be','H_hx');rm('hk','hx');recB(hb);const hm=mergeState({be:[{id:'H_hx',_u:1,d:60}],_del:{}},{_del:S._del});
 ok('Husk Credit Sale (k:H): Buyer Balance, 5-Column Passbook, Delete + Tombstone Reversal Test',bal1==60&&hc.length==5&&hc[2]==R(100)&&hc[3]==R(40)&&hb.bal==0&&!!S._del['H_hx']&&!!S._del['hx']&&S.be.length==0&&S.hk.length==0&&hm.be.length==0)}finally{S=S0;PV=PV0;ed=ed0}}
 T.push('<tr><td id="vt11">⏳</td><td>AES-GCM Vault Encryption & Wrong-Password Rejection Test</td></tr>');vaultTest().then(r=>{const e=$('vt11');if(e)e.textContent=r?'✅':'❌'});
+{/* ---- Receipt Sharing Upgrade tests ---- */
+const E1=(a,b)=>JSON.stringify(a)==JSON.stringify(b),mk=tx=>{const el=document.createElement('div');el.innerHTML=fmtThermal(tx);return el},lsg=()=>{try{return localStorage.getItem(K)}catch(e){return null}};
+const okA=(id,l,p)=>{T.push(`<tr><td id="${id}">⏳</td><td>${l}</td></tr>`);let tries=0;const set=r=>{const e=$(id);if(e)e.textContent=r?'✅':'❌';else if(tries++<80)setTimeout(()=>set(r),100)};Promise.resolve(p).then(r=>set(!!r),()=>set(false))};
+const pr0={date:'2026-11-14',g:1195,ded:96,bill:1099,rate:24,amt:26376,cut:0,net:26376,int:0,pr:0,fin:26376},fv0={name:'கார்த்திக்',v:'மேற்பனைக்காடு'};
+const ptx=billP(pr0,fv0,0),pwa=fmtWA(ptx,{bal:0});
+ok('① Styled WhatsApp Text – Purchase (🥥 Bold Header, ━ கோடுகள், 📅/👤/📍, இலாபக் காய் %, தேங்காய் தொகை, ✅ கணக்கு இருப்பு)',['🥥 *SKP COCO Traders* 🥥',WX_L,'*கொள்முதல் ரசீது (Purchase Bill)*','📅 தேதி: *14-Nov-2026*','👤 விவசாயி: *கார்த்திக்*','📍 ஊர்: *மேற்பனைக்காடு*','வெட்டிய காய்கள் : 1,195','இலாபக் காய் (8%) : -96','பில் காய்கள் : 1,099 × ₹24','தேங்காய் தொகை : *₹26,376*','💰 *பில் நிகரத் தொகை : ₹26,376*','💵 *இறுதி பட்டுவாடா : ₹26,376*','✅ கணக்கு இருப்பு : *₹0 (நேர்)*','🙏 *நன்றி! — SKP COCO Traders*'].every(s=>pwa.includes(s)));
+const SR={date:'2026-11-12',rows:[{g:'husked_pachai_kudumi',pcs:2000,gk:1000,dk:30,nk:970,rate:35,tot:33950},{g:'unhusked_pachai',pcs:1000,gk:500,dk:0,nk:500,rate:20,tot:10000}],total:43950,recv:20000},swa=fmtWA(billS(SR,{name:'ராஜா',bal:23950}),{bal:23950});
+ok('② Styled WhatsApp Text – Sales (ஒவ்வொரு ரகம், காட்டா/கழிவு/நிகர எடை, விலை, பில் மொத்தம், வாங்கிய தொகை, புதிய பாக்கி)',['*விற்பனை ரசீது (Sales Bill)*','👤 வியாபாரி: *ராஜா*','*1) பச்சை குடுமிக்காய்*','*2) உரிக்காத காய் - பச்சை*','ஏற்றிய காய்கள் : 2,000','காட்டா எடை : 1,000 Kg','கழிவு எடை : 30 Kg','நிகர எடை : 970 Kg','1 கிலோ விலை : ₹35','தொகை : *₹33,950*','💰 *பில் மொத்தம் : ₹43,950*','💵 வாங்கிய தொகை : *₹20,000*','📌 *புதிய பாக்கி : ₹23,950*'].every(s=>swa.includes(s))&&swa.split('கழிவு எடை').length==2);
+const zb=fmtWA(bt,{bal:0}),zb2=fmtWA(b2,{bal:-97000});
+ok('③ Zero-Value Suppression – WhatsApp Text (0 வரிகள் மறைப்பு; >0 வரிகள் காட்டப்படும்; ₹ இந்திய வடிவம்)',!/வெட்டுக் கூலி|வட்டி|அசல்|முன்பண/.test(zb)&&/வெட்டுக் கூலி : -₹1,500/.test(zb2)&&/வட்டி கழிப்பு : -₹4,000/.test(zb2)&&/அசல் கழிப்பு : -₹3,000/.test(zb2)&&/முன்பண இருப்பு : ₹97,000/.test(zb2)&&!/இலாபக் காய்.*-0/.test(fmtWA(billP({...pr0,ded:0},fv0,0))));
+const el1=mk(ptx),A58=rcMake(el1,58),A80=rcMake(el1,80),LRW={date:'2026-11-14',rows:Array.from({length:8},(_,i)=>({g:GR[i][0],pcs:500+i,gk:250,dk:7.5,nk:242.5,rate:30,tot:7275})),total:58200,recv:10000},ALong=rcMake(mk(billS(LRW,{name:'நீண்ட பெயர் கொண்ட வியாபாரி',bal:48200})),58);
+okA('vx4','④ PNG Blob Generation (image/png + PNG signature)',A58.then(async r=>{const u=new Uint8Array(await r.png.slice(0,8).arrayBuffer());return r.png.type=='image/png'&&r.png.size>500&&u[0]==137&&u[1]==80&&u[2]==78&&u[3]==71}));
+okA('vx5','⑤ PNG Image Dimensions (58mm = 768px, 80mm = 1152px அகலம்; உயரம் = Canvas உயரம்)',Promise.all([A58,A80]).then(async([a,b])=>{const d=async bl=>{const bm=await createImageBitmap(bl);return[bm.width,bm.height]};const[x,y]=await d(a.png),[p,q]=await d(b.png);return x==768&&p==1152&&y>0&&q>0&&y==a.h&&q==b.h}));
+okA('vx6','⑥ Tamil Text Rendering (Canvas-ல் தமிழ் + ₹ வரையப்படுகிறது)',(async()=>{await rcFonts();const cv=rcRender([{t:'tp',s:'தமிழ் வணக்கம் ₹ 12,345 SKP'}],58),cx=cv.getContext('2d'),d=cx.getImageData(0,0,cv.width,cv.height).data;let dark=0;for(let i=0;i<d.length;i+=4)if(d[i]<100)dark++;cx.font='400 20px '+RC_FONT;return dark>150&&cx.measureText('தமிழ்').width>0})());
+const pdfInfo=async r=>{const s=new TextDecoder('latin1').decode(new Uint8Array(await r.pdf.arrayBuffer())),m=s.match(/\/MediaBox \[0 0 ([\d.]+) ([\d.]+)\]/);return{s,w:m&&+m[1],h:m&&+m[2]}};
+okA('vx7','⑦ PDF MIME Type (application/pdf, %PDF-1.4 … %%EOF)',A58.then(async r=>{const i=await pdfInfo(r);return r.pdf.type=='application/pdf'&&i.s.startsWith('%PDF-1.4')&&/%%EOF\s*$/.test(i.s)}));
+okA('vx8','⑧ PDF Page Width – 58mm (164.41pt, A4 அல்ல)',A58.then(async r=>{const i=await pdfInfo(r);return Math.abs(i.w-164.41)<.02&&i.w<300}));
+okA('vx9','⑨ PDF Page Width – 80mm (226.77pt, A4 அல்ல)',A80.then(async r=>{const i=await pdfInfo(r);return Math.abs(i.w-226.77)<.02&&i.w<300}));
+okA('vx10','⑩ Dynamic PDF Height (உள்ளடக்கத்திற்கு ஏற்ப; பக்க விகிதம் = Image விகிதம்)',Promise.all([A58,ALong]).then(async([a,b])=>{const i=await pdfInfo(a),j=await pdfInfo(b);return j.h>i.h*1.5&&Math.abs(i.h/i.w-a.h/a.w)<.005&&Math.abs(j.h/j.w-b.h/b.w)<.005}));
+okA('vx11','⑪ Long Receipt Content (60 வரிகள் + நீண்ட Wrap உரை; 58mm & 80mm)',(async()=>{const rows=[{t:'rh',s:'🥥 SKP COCO Traders'}];for(let i=0;i<60;i++)rows.push({t:'tr',l:'ரகம் '+i+':',v:'₹'+(i*1111).toLocaleString('en-IN')});rows.push({t:'tp',s:'மிக நீண்ட குறிப்பு '.repeat(30)},{t:'tr',l:'மிகநீண்டபெயர்'.repeat(8)+':',v:'₹1,23,456'},{t:'rf',s:'நன்றி'});const c=rcRender(rows,58),c2=rcRender(rows,80);return c.height>3000&&c.height<32000&&c2.height>0&&c.width==768&&c2.width==1152})());
+okA('vx12','⑫ Missing Mobile Share API Fallback (Share இல்லை → Download; Cancel → எதுவும் இல்லை; Share இருந்தால் Files)',(async()=>{const b=new Blob(['x'],{type:'image/png'});let called='',sh=null;const a=await rcShare(b,'t.png','t','t',{nav:{},dl:(x,n)=>{called=n}}),c=await rcShare(b,'t.png','t','t',{nav:{canShare:()=>true,share:async o=>{sh=o}},dl:()=>{called='BAD'}}),d=await rcShare(b,'t.png','t','t',{nav:{canShare:()=>true,share:async()=>{const e=new Error('x');e.name='AbortError';throw e}},dl:()=>{called='BAD'}}),e=await rcShare(b,'t.png','t','t',{nav:{canShare:()=>false,share:async()=>{}},dl:(x,n)=>{called+='+'+n}});return a=='download'&&called=='t.png+t.png'&&c=='shared'&&sh&&sh.files[0].name=='t.png'&&d=='cancel'&&e=='download'})());
+const rA=rcRows(el1);
+ok('⑬ Receipt Data Integrity (PNG/PDF வரிகள் = #bmReceipt வரிகள்; 58/80mm மாற்றினாலும் தொகைகள் ஒன்றே; WhatsApp = அதே தொகை)',rA.map(r=>(r.l||'')+(r.v||'')+(r.s||'')).join('')==el1.textContent&&E1(rA,rcRows(mk(ptx)))&&rA.some(r=>r.v=='₹26,376')&&pwa.includes('₹26,376')&&rA.some(r=>r.t=='tk'&&r.v=='₹26,376'));
+okA('vx14','⑭ No Duplicate Transaction (PNG/PDF/Share/WhatsApp உருவாக்கம் Database-ஐ மாற்றவில்லை)',(async()=>{const s0=JSON.stringify(S),l0=lsg(),n0=S.fe.length+S.be.length+S.hk.length;const r=await rcMake(mk(ptx),58);await rcShare(r.png,'a.png','t','t',{nav:{},dl:()=>{}});await rcShare(r.pdf,'a.pdf','t','t',{nav:{},dl:()=>{}});await rcShare(r.png,'a.png','t','t',{nav:{},dl:()=>{}});fmtWA(ptx,{bal:0});return JSON.stringify(S)==s0&&lsg()==l0&&S.fe.length+S.be.length+S.hk.length==n0})());
+const xp={date:'2026-11-12',g:1000,ded:80,bill:920,rate:12,amt:11040,cut:1500,net:9540,int:4000,pr:3000,fin:2540};
+ok('⑮ Existing Purchase / Sales Calculations & billP / billS Return Format மாறவில்லை',billP(xp,{name:'X',v:''},-97000)==='SKP COCO Traders\nதேதி: 12-Nov-2026\nவிவசாயி: X\nவெட்டிய காய்கள்: 1000\nஇலாபக் காய்: 80\nபில் காய்கள்: 920 × ₹12 = ₹11,040\nவெட்டுக் கூலி: -₹1,500\nபில் நிகரத் தொகை: ₹9,540\nவட்டி கழிப்பு: -₹4,000\nஅசல் கழிப்பு: -₹3,000\nஇறுதி பட்டுவாடா: ₹2,540\nமுன்பண இருப்பு: ₹97,000'&&billS({date:'2026-11-12',rows:[{g:'unhusked_pachai',pcs:1000,gk:500,dk:15,nk:485,rate:20,tot:9700}],total:9700,recv:5000},{name:'Y',bal:4700})==='SKP COCO Traders\nதேதி: 12-Nov-2026\nவியாபாரி: Y\n\nஉரிக்காத காய் - பச்சை: 1000 காய்\nகாட்டா எடை: 500 Kg\nகழிவு எடை: 15 Kg\nநிகர எடை: 485 Kg\n1 கிலோ விலை: ₹20\nதொகை: ₹9,700\nபில் மொத்தம்: ₹9,700\nவாங்கிய தொகை: ₹5,000\nபுதிய பாக்கி: ₹4,700'&&Math.round(1000*.08)==80&&1000-80==920&&920*12==11040&&intr(1e5,2,55,'m')==4000&&intr(1e5,2,55,'d')==3667);
+}
 return `<div class="card"><h3>Verification Panel</h3><table>${T.join('')}</table></div>`}
+/* ===== Receipt Sharing Upgrade: Styled WhatsApp text + PNG/PDF thermal receipt (offline, no external lib) ===== */
+const WX_L='━━━━━━━━━━━━━━━━━━━━',WX_D='────────────────────';
+const wxNum=s=>String(s).replace(/\d[\d,]*(?:\.\d+)?/g,t=>{if(t.indexOf(',')>=0)return t;const p=parseFloat(t);return isFinite(p)&&p>=1000?p.toLocaleString('en-IN',{maximumFractionDigits:3}):t});
+const wxZero=v=>/^-?(₹)?0(\.0+)?( Kg| காய்| மட்டை)?$/.test(String(v).trim());
+function fmtWA(tx,meta){
+const P=String(tx).replace(/\*/g,'').split('\n');if((P[0]||'').trim()=='SKP COCO Traders')P.shift();
+const rows=P.map(r=>{const l=r.trim();if(!l)return{b:1};const k=l.indexOf(': ');if(k>0&&k<=40&&!/^\d{2}-[A-Za-z]{3}-\d{4}\s-\s/.test(l))return{l:l.slice(0,k),v:l.slice(k+2).trim()};return{t:l}});
+const has=l=>rows.some(x=>x.l==l),get=l=>{const x=rows.find(y=>y.l==l);return x?x.v:''};
+const ttl=has('வெட்டிய காய்கள்')?'கொள்முதல் ரசீது (Purchase Bill)':has('பில் மொத்தம்')?'விற்பனை ரசீது (Sales Bill)':(has('மட்டை விற்பனை')||has('மட்டைகள்'))?'மட்டை விற்பனை ரசீது (Husk Sales Bill)':has('பட்டுவாடா')?'விவசாயி பட்டுவாடா ரசீது (Farmer Payment)':has('முன்பணம்')?'முன்பணம் ரசீது (Advance Receipt)':has('வசூல்')?'வசூல் ரசீது (Collection Receipt)':rows.some(x=>x.t&&/^கடைசி /.test(x.t))?'கணக்கு அறிக்கை (Statement)':'ரசீது (Receipt)';
+const o=['🥥 *SKP COCO Traders* 🥥','',WX_L,'','*'+ttl+'*',''];
+const last=()=>o[o.length-1],dv=()=>{if(last()!==WX_D)o.push(WX_D)};
+const kv=(l,v)=>l+' : '+v,PARTY=['விவசாயி','வியாபாரி','வாங்குபவர்'];
+let hdr=true,rn=0;
+rows.forEach(x=>{
+const head=x.l=='தேதி'||PARTY.includes(x.l);
+if(x.b){if(last()!=='')o.push('');return}
+if(hdr&&!head){hdr=false;if(last()!=='')o.push('');o.push(WX_D)}
+if(x.t){const m=x.t.match(/^(\d{2}-[A-Za-z]{3}-\d{4})( - .*)$/);o.push(m?'📅 *'+m[1]+'*'+m[2]:(/:$/.test(x.t)?'*'+x.t+'*':x.t));return}
+const l=x.l,v=x.v;
+if(l=='தேதி'){o.push('📅 தேதி: *'+v+'*');return}
+if(PARTY.includes(l)){const m=v.match(/^(.*?)\s*\((.*)\)$/);o.push('👤 '+l+': *'+(m?m[1]:v)+'*');if(m)o.push('📍 ஊர்: *'+m[2]+'*');return}
+if(/^[\d,]+ காய்$/.test(v)){o.push('*'+(++rn)+') '+l+'*');o.push(kv('ஏற்றிய காய்கள்',wxNum(v.replace(' காய்',''))));return}
+if(wxZero(v)&&!['பில் நிகரத் தொகை','இறுதி பட்டுவாடா','பில் மொத்தம்','மீதம்'].includes(l))return;
+if(l=='இலாபக் காய்'){const g=parseFloat(get('வெட்டிய காய்கள்'))||0,d=parseFloat(v)||0,pc=g?Math.round(d/g*1000)/10:0;o.push('இலாபக் காய் ('+pc+'%) : -'+wxNum(v));return}
+if(l=='பில் காய்கள்'){const m=v.match(/^(.*?) = (.*)$/);if(m){o.push(kv(l,wxNum(m[1])));o.push('தேங்காய் தொகை : *'+m[2]+'*')}else o.push(kv(l,wxNum(v)));return}
+if(l=='பில் நிகரத் தொகை'||l=='பில் மொத்தம்'||l=='மொத்தம்'||l=='மீதம்'){dv();o.push((l=='மீதம்'?'📌 *':'💰 *')+l+' : '+v+'*');return}
+if(l=='இறுதி பட்டுவாடா'){o.push('💵 *'+l+' : '+v+'*');return}
+if(l=='முன்பண இருப்பு'){o.push('🏦 *'+l+' : '+v+'*');return}
+if(l=='பாக்கி'||l=='புதிய பாக்கி'){o.push('📌 *'+l+' : '+v+'*');return}
+if(l=='வாங்கிய தொகை'){o.push('💵 '+l+' : *'+v+'*');return}
+if(l=='வசூல்'||l=='பட்டுவாடா'||l=='முன்பணம்'){o.push('💵 *'+l+' : '+v+'*');return}
+if(l=='தொகை'){o.push(l+' : *'+v+'*');return}
+o.push(kv(l,wxNum(v)))});
+if(meta&&typeof meta.bal=='number'&&!has('முன்பண இருப்பு')&&!has('பாக்கி')&&!has('புதிய பாக்கி')&&!has('மீதம்')){const b=Math.round(meta.bal);o.push('');o.push((b==0?'✅':'📌')+' கணக்கு இருப்பு : *'+balTxt(b)+'*')}
+while(last()==='')o.pop();
+o.push('',WX_L,'🙏 *நன்றி! — SKP COCO Traders*');
+return o.join('\n')}
+const waS=(ph,tx,meta)=>wa(ph,fmtWA(tx,meta));
+
+const RC_FONT="'Noto Sans Tamil','Latha','Nirmala UI','Tamil Sangam MN','Lohit Tamil','Noto Sans','Inter',system-ui,sans-serif";
+let _rcF=null;const rcFonts=()=>_rcF||(_rcF=new Promise(res=>{const done=()=>res();setTimeout(done,1500);try{if(document.fonts&&document.fonts.load){Promise.all([document.fonts.load('400 16px "Noto Sans Tamil"','தமிழ்'),document.fonts.load('700 16px "Noto Sans Tamil"','தமிழ்'),document.fonts.load('400 16px Inter','₹')]).then(done,done)}else done()}catch(e){done()}}));
+/* Read the already-rendered receipt layout (#bmReceipt / fmtThermal output) -> drawable rows. No second calculation logic. */
+function rcRows(el){const o=[];Array.from(el.children).forEach(c=>{const cl=c.classList;
+if(cl.contains('rh'))o.push({t:'rh',s:c.textContent});
+else if(cl.contains('tr')){const a=c.querySelector('.tl'),b=c.querySelector('.tv');o.push({t:cl.contains('tk')?'tk':'tr',l:a?a.textContent:'',v:b?b.textContent:''})}
+else if(cl.contains('td'))o.push({t:'td'});
+else if(cl.contains('ts'))o.push({t:'ts',s:c.textContent});
+else if(cl.contains('tp'))o.push({t:'tp',s:c.textContent});
+else if(cl.contains('rf'))o.push({t:'rf',s:c.textContent})});return o}
+function rcRender(rows,mm){
+const W=mm==80?576:384,SC=2,k=W/(mm*3.7795),pad=Math.round(7.56*k),IW=W-2*pad,gp=6*k,fB=12*k,fH=16*k,fK=15*k;
+const Fn=(px,b)=>(b?'700 ':'400 ')+px+'px '+RC_FONT;
+const seg=s=>{try{if(typeof Intl!='undefined'&&Intl.Segmenter)return Array.from(new Intl.Segmenter('ta',{granularity:'grapheme'}).segment(s),x=>x.segment)}catch(e){}return Array.from(s)};
+const lay=(cx,dr)=>{
+const sf=(px,b)=>{cx.font=Fn(px,b)},wd=s=>cx.measureText(s).width;
+const wrap=(s,w)=>{const out=[];String(s).split('\n').forEach(par=>{let cur='';par.split(' ').forEach(word=>{const t=cur?cur+' '+word:word;if(wd(t)<=w||(!cur&&!word)){cur=t;return}
+if(cur){out.push(cur);cur=''}
+if(wd(word)<=w){cur=word;return}
+let part='';seg(word).forEach(ch=>{if(part&&wd(part+ch)>w){out.push(part);part=ch}else part+=ch});cur=part});out.push(cur)});return out};
+const T=(s,x,yy,al,px,b)=>{if(!dr)return;cx.font=Fn(px,b);cx.textAlign=al;cx.fillText(s,x,yy)};
+const LN=(yy,dash,th)=>{if(!dr)return;cx.save();cx.lineWidth=th;cx.strokeStyle='#000';cx.setLineDash(dash?[3*k,2*k]:[]);cx.beginPath();cx.moveTo(pad,yy);cx.lineTo(W-pad,yy);cx.stroke();cx.restore()};
+let y=pad;
+rows.forEach(r=>{
+if(r.t=='rh'){sf(fH,1);const lh=fH*1.45;wrap(r.s,IW).forEach(s=>{T(s,W/2,y+lh/2,'center',fH,1);y+=lh});y+=4*k;LN(y+.5*k,0,k);LN(y+2.5*k,0,k);y+=3*k+5*k}
+else if(r.t=='tr'||r.t=='tk'){const kk=r.t=='tk',px=kk?fK:fB,lh=px*1.45,lb=r.l;
+if(kk){y+=3*k;LN(y+.5*k,1,k);y+=4*k}else y+=k;
+sf(px,kk);const lw=wd(lb);sf(px,1);const vw=wd(r.v);
+if(lw+vw+gp<=IW){T(lb,pad,y+lh/2,'left',px,kk);T(r.v,W-pad,y+lh/2,'right',px,1);y+=lh}
+else{const av=IW-vw-gp;
+if(av>=IW*.35){sf(px,kk);wrap(lb,av).forEach((s,i)=>{T(s,pad,y+lh/2,'left',px,kk);if(i==0)T(r.v,W-pad,y+lh/2,'right',px,1);y+=lh})}
+else{sf(px,kk);const a=wrap(lb,IW);sf(px,1);const b=wrap(r.v,IW);a.forEach(s=>{T(s,pad,y+lh/2,'left',px,kk);y+=lh});b.forEach(s=>{T(s,W-pad,y+lh/2,'right',px,1);y+=lh})}}
+if(kk){y+=3*k;LN(y+.5*k,1,k);y+=4*k}else y+=k}
+else if(r.t=='td'){y+=4*k;LN(y+.5*k,1,k);y+=5*k}
+else if(r.t=='ts'){y+=2*k;sf(fB,1);const lh=fB*1.45;wrap(r.s,IW).forEach(s=>{T(s,pad,y+lh/2,'left',fB,1);y+=lh})}
+else if(r.t=='tp'){sf(fB,0);const lh=fB*1.45;wrap(r.s,IW).forEach(s=>{T(s,pad,y+lh/2,'left',fB,0);y+=lh})}
+else if(r.t=='rf'){y+=6*k;LN(y+.5*k,0,k);y+=5*k;sf(fB,0);const lh=fB*1.45;wrap(r.s,IW).forEach(s=>{T(s,W/2,y+lh/2,'center',fB,0);y+=lh})}});
+return y+pad};
+const H=Math.ceil(lay(document.createElement('canvas').getContext('2d'),false));
+const cv=document.createElement('canvas');cv.width=W*SC;cv.height=H*SC;const cx=cv.getContext('2d');cx.scale(SC,SC);cx.fillStyle='#fff';cx.fillRect(0,0,W,H);cx.fillStyle='#000';cx.textBaseline='middle';lay(cx,true);return cv}
+const rcBlob=(cv,type,q)=>new Promise((ok,no)=>{try{cv.toBlob(b=>b?ok(b):no(new Error('Image encode failed')),type,q)}catch(e){no(e)}});
+/* Minimal native PDF (1 page, embedded JPEG). Page width is the true mm width; height follows the content. */
+function pdfFromJpeg(jb,pw,ph,mm){
+const Wp=+(mm/25.4*72).toFixed(2),Hp=+(Wp*ph/pw).toFixed(2),enc=s=>new TextEncoder().encode(s),parts=[],off=[];let len=0;
+const push=b=>{parts.push(b);len+=b.length};
+const obj=(n,head,stream)=>{off[n]=len;push(enc(n+' 0 obj\n'+head+'\n'));if(stream){push(enc('stream\n'));push(stream);push(enc('\nendstream\n'))}push(enc('endobj\n'))};
+push(enc('%PDF-1.4\n'));
+obj(1,'<< /Type /Catalog /Pages 2 0 R >>');
+obj(2,'<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
+obj(3,'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 '+Wp+' '+Hp+'] /Resources << /XObject << /Im0 4 0 R >> /ProcSet [/PDF /ImageC] >> /Contents 5 0 R >>');
+obj(4,'<< /Type /XObject /Subtype /Image /Width '+pw+' /Height '+ph+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+jb.length+' >>',jb);
+const cs='q '+Wp+' 0 0 '+Hp+' 0 0 cm /Im0 Do Q';
+obj(5,'<< /Length '+cs.length+' >>',enc(cs));
+const xo=len;let x='xref\n0 6\n0000000000 65535 f \n';for(let i=1;i<=5;i++)x+=String(off[i]).padStart(10,'0')+' 00000 n \n';
+x+='trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n'+xo+'\n%%EOF\n';push(enc(x));
+return new Blob(parts,{type:'application/pdf'})}
+async function rcMake(el,mm){await rcFonts();const cv=rcRender(rcRows(el),mm),png=await rcBlob(cv,'image/png'),jb=await rcBlob(cv,'image/jpeg',.95),pdf=pdfFromJpeg(new Uint8Array(await jb.arrayBuffer()),cv.width,cv.height,mm);return{cv,png,pdf,w:cv.width,h:cv.height}}
+const rcName=(tx,w,ext)=>{const m=String(tx).match(/தேதி: (\d{2}-[A-Za-z]{3}-\d{4})/);return 'SKP_Bill_'+(m?m[1]:fd(td()))+'_'+w+'mm.'+ext};
+function rcDl(b,n){const u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=n;a.rel='noopener';document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(u)},4000)}
+/* Web Share (files). env lets tests inject a fake navigator / downloader. Returns 'shared' | 'cancel' | 'download'. */
+async function rcShare(b,n,title,text,env){env=env||{};const nv='nav' in env?env.nav:navigator,dl=env.dl||rcDl;let f=null;try{f=new File([b],n,{type:b.type})}catch(e){}
+if(f&&nv&&typeof nv.share=='function'&&typeof nv.canShare=='function'){let can=false;try{can=nv.canShare({files:[f]})}catch(e){}
+if(can){try{await nv.share({files:[f],title,text});return'shared'}catch(e){if(e&&e.name=='AbortError')return'cancel'}}}
+dl(b,n);return'download'}
+const rcMsg=s=>s=='shared'?'✅ பகிரப்பட்டது':s=='download'?'⬇️ இந்தச் சாதனத்தில் Share ஆதரவு இல்லை — கோப்பு Download செய்யப்பட்டது':'';
 function fmtThermal(tx){const E=x=>String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'),KEY=['பில் நிகரத் தொகை','இறுதி பட்டுவாடா','பில் மொத்தம்','புதிய பாக்கி','மீதம்'],HD=['தேதி','விவசாயி','வியாபாரி','வாங்குபவர்'],ln=String(tx).split('\n');if((ln[0]||'').trim()=='SKP COCO Traders')ln.shift();let h='',hd=false,gap=true;const dv=()=>{if(!gap){h+='<div class="td"></div>';gap=true}};
 ln.forEach(r=>{const l=r.trim();if(!l){dv();return}const k=l.indexOf(': ');if(k>0&&k<=40&&!/^\d{2}-[A-Za-z]{3}-\d{4}\s-\s/.test(l)){const a=l.slice(0,k),v=l.slice(k+2).trim(),isH=HD.includes(a);if(hd&&!isH){dv();hd=false}if(isH)hd=true;h+=`<div class="tr${KEY.includes(a)?' tk':''}"><span class="tl">${E(a)}:</span><span class="tv">${E(v)}</span></div>`;gap=false}else if(/:$/.test(l)){h+=`<div class="ts">${E(l)}</div>`;gap=false}else{h+=`<div class="tp">${E(l)}</div>`;gap=false}});
 return `<div class="rh">🥥 SKP COCO Traders</div>${h}<div class="rf">நன்றி! — SKP COCO Traders</div>`}
-function showBill(tx,ph){const m=document.createElement('div');m.id='bm';m.dataset.w='58';m.style.cssText='position:fixed;inset:0;background:#000a;z-index:20;padding:16px;display:flex;align-items:center;justify-content:center';m.innerHTML=`<style id="bmP">@media print{@page{size:58mm auto;margin:2mm}}</style><div class="card" style="max-width:520px;width:100%;max-height:90vh;overflow:auto"><h3>பில் / ரசீது</h3><div class="bmtool"><button class="btn s o" data-w="58">58mm</button><button class="btn s x" data-w="80">80mm</button></div><div id="bmReceipt" class="w58">${fmtThermal(tx)}</div><pre id="bmt" hidden></pre><button class="btn o" id="bmw">📲 WhatsApp Share</button><button class="btn" onclick="window.print()">🖨️ Print</button><button class="btn x" onclick="document.getElementById('bm').remove()">மூடு</button></div>`;document.body.appendChild(m);$('bmt').textContent=tx;$('bmw').onclick=()=>wa(ph,tx);
-const fit=w=>{const mg=w=='58'?2:3,h=Math.ceil($('bmReceipt').getBoundingClientRect().height*25.4/96)+2*mg+6;$('bmP').textContent=`@media print{@page{size:${w}mm ${h}mm;margin:${mg}mm}}`};const sw=w=>{m.dataset.w=w;$('bmReceipt').className='w'+w;fit(w);m.querySelectorAll('button[data-w]').forEach(b=>b.className='btn s '+(b.dataset.w==w?'o':'x'))};m.querySelectorAll('button[data-w]').forEach(b=>b.onclick=()=>sw(b.dataset.w));fit('58')}
+function showBill(tx,ph,meta){const m=document.createElement('div');m.id='bm';m.dataset.w='58';m.style.cssText='position:fixed;inset:0;background:#000a;z-index:20;padding:16px;display:flex;align-items:center;justify-content:center';m.innerHTML=`<style id="bmP">@media print{@page{size:58mm auto;margin:2mm}}</style><div class="card" style="max-width:520px;width:100%;max-height:90vh;overflow:auto"><h3>🥥 SKP COCO Traders – Bill / Receipt</h3><div class="bmtool"><button class="btn s o" data-w="58">58mm</button><button class="btn s x" data-w="80">80mm</button></div><div id="bmReceipt" class="w58">${fmtThermal(tx)}</div><pre id="bmt" hidden></pre><div id="bmMsg" class="k" style="min-height:18px"></div><div id="bmImg" hidden style="text-align:center;margin:6px 0"></div><div class="bmact"><button class="btn o" id="bmw">📲 WhatsApp Text</button><button class="btn" id="bmsi">🖼️ Share Bill Image (PNG)</button><button class="btn" id="bmsp">📄 Share Bill PDF</button><button class="btn x" id="bmdi">⬇️ Download PNG</button><button class="btn x" id="bmdp">⬇️ Download PDF</button><button class="btn" onclick="window.print()">🖨️ Print Receipt</button><button class="btn x" id="bmx">✖️ Close</button></div></div>`;document.body.appendChild(m);$('bmt').textContent=tx;$('bmw').onclick=()=>waS(ph,tx,meta);
+const cache={};let url=null,busy=false;const msg=s=>{const e=$('bmMsg');if(e)e.textContent=s||''};
+const prep=()=>{const w=m.dataset.w;return cache[w]||(cache[w]=rcMake($('bmReceipt'),+w).catch(e=>{delete cache[w];throw e}))};
+const show=b=>{if(url)URL.revokeObjectURL(url);url=URL.createObjectURL(b);const h=$('bmImg');if(!h)return;h.hidden=false;h.innerHTML='';const im=new Image();im.src=url;im.alt='Bill Image';im.style.cssText='max-width:100%;border:1px solid var(--bd);background:#fff';h.appendChild(im)};
+const act=fn=>async()=>{if(busy)return;busy=true;msg('⏳ தயாராகிறது...');try{const r=await prep();await fn(r)}catch(e){msg('❌ ரசீது கோப்பை உருவாக்க முடியவில்லை: '+(e&&e.message||e))}finally{busy=false}};
+const nm=ext=>rcName(tx,m.dataset.w,ext),TT='SKP COCO Traders – Bill',TX='SKP COCO Traders – ரசீது';
+$('bmsi').onclick=act(async r=>{show(r.png);msg(rcMsg(await rcShare(r.png,nm('png'),TT,TX)))});
+$('bmsp').onclick=act(async r=>{msg(rcMsg(await rcShare(r.pdf,nm('pdf'),TT,TX)))});
+$('bmdi').onclick=act(async r=>{show(r.png);rcDl(r.png,nm('png'));msg('⬇️ PNG Download செய்யப்பட்டது')});
+$('bmdp').onclick=act(async r=>{rcDl(r.pdf,nm('pdf'));msg('⬇️ PDF Download செய்யப்பட்டது')});
+$('bmx').onclick=()=>{if(url)URL.revokeObjectURL(url);m.remove()};
+const fit=w=>{const mg=w=='58'?2:3,h=Math.ceil($('bmReceipt').getBoundingClientRect().height*25.4/96)+2*mg+6;$('bmP').textContent=`@media print{@page{size:${w}mm ${h}mm;margin:${mg}mm}}`};const sw=w=>{m.dataset.w=w;$('bmReceipt').className='w'+w;fit(w);m.querySelectorAll('button[data-w]').forEach(b=>b.className='btn s '+(b.dataset.w==w?'o':'x'));prep().catch(()=>{})};m.querySelectorAll('button[data-w]').forEach(b=>b.onclick=()=>sw(b.dataset.w));fit('58');setTimeout(()=>prep().catch(()=>{}),0)}
 function eb(k,id){const p=k=='f'?fm(lsel):bm(lsel);if(!p)return;const x=ledger(k,p).find(z=>z.e.id==id);if(!x)return;const e=x.e,run=x.run;
-if(e.k=='P')return showBill(billP(e,p,run),p.ph);if(e.k=='S')return showBill(billS(e,{name:p.name,bal:run}),p.ph);
-if(e.k=='H')return showBill('SKP COCO Traders\nதேதி: '+fd(e.date)+'\nவியாபாரி: '+p.name+'\nமட்டை விற்பனை: '+e.pcs+' மட்டை\nமொத்தம்: '+R(e.total)+L('வாங்கிய தொகை',e.recv)+L('பாக்கி',run),p.ph);
-showBill(`SKP COCO Traders\nதேதி: ${fd(e.date)}\n${k=='f'?'விவசாயி':'வியாபாரி'}: ${p.name}\n${{D:'பாக்கி பட்டுவாடா',A:'முன்பணம்',C:'வசூல்'}[e.k]}: ${R(Math.abs(e.d))}`+(k=='f'?L('முன்பண இருப்பு',-run)+L('பாக்கி',run):L('பாக்கி',run)),p.ph)}
+if(e.k=='P')return showBill(billP(e,p,run),p.ph,{bal:run});if(e.k=='S')return showBill(billS(e,{name:p.name,bal:run}),p.ph,{bal:run});
+if(e.k=='H')return showBill('SKP COCO Traders\nதேதி: '+fd(e.date)+'\nவியாபாரி: '+p.name+'\nமட்டை விற்பனை: '+e.pcs+' மட்டை\nமொத்தம்: '+R(e.total)+L('வாங்கிய தொகை',e.recv)+L('பாக்கி',run),p.ph,{bal:run});
+showBill(`SKP COCO Traders\nதேதி: ${fd(e.date)}\n${k=='f'?'விவசாயி':'வியாபாரி'}: ${p.name}\n${{D:'பாக்கி பட்டுவாடா',A:'முன்பணம்',C:'வசூல்'}[e.k]}: ${R(Math.abs(e.d))}`+(k=='f'?L('முன்பண இருப்பு',-run)+L('பாக்கி',run):L('பாக்கி',run)),p.ph,{bal:run})}
 const SN='skp4_snaps';
 const snaps=()=>{try{return JSON.parse(localStorage.getItem(SN))||[]}catch(e){return[]}};
 function snap(){try{const a=snaps();a.unshift({dt:td(),tm:new Date().toTimeString().slice(0,5),n:S.f.length+' விவசாயி / '+S.b.length+' வியாபாரி / '+(S.fe.length+S.be.length)+' பதிவுகள்',d:JSON.stringify(S)});localStorage.setItem(SN,JSON.stringify(a.slice(0,8)))}catch(e){}}
