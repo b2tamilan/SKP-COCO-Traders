@@ -101,7 +101,7 @@ const fm=i=>S.f.find(x=>x.id==i),bm=i=>S.b.find(x=>x.id==i),opt=l=>l.map(x=>`<op
 const F=(i,l,x='')=>`<label>${l}<input id="${i}" type="number" inputmode="decimal" step="any" ${x}></label>`;
 const DF=(i,fn='')=>`<label>தேதி <b id="${i}f">${fd(td())}</b><input id="${i}" type="date" value="${td()}" oninput="$('${i}f').textContent=fd(this.value);${fn}"></label>`;
 const TX=(i,l)=>`<label>${l}<input id="${i}"></label>`,MD=i=>`<label>Mode<select id="${i}"><option>Cash</option><option>Bank</option><option>UPI</option></select></label>`;
-const wa=(ph,tx)=>window.open('https://wa.me/'+(ph||'').replace(/\D/g,'')+'?text='+encodeURIComponent(tx),'_blank');
+const wa=(ph,tx)=>{let d=(ph||'').replace(/\D/g,'').replace(/^0+/,'');if(d.length==10)d='91'+d;window.open('https://wa.me/'+d+'?text='+encodeURIComponent(tx),'_blank')};
 function newParty(k){partyModal(k)}
 const FH=(i,l,x)=>F(i,l,x).replace('<label>','<label class="cut hid">');
 const FX=(i,l,x)=>F(i,l,x).replace('type="number" inputmode="decimal" step="any"','type="text" readonly');
